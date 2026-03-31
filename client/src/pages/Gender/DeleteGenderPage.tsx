@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import DeleteGenderForm from "./DeleteGenderForm"
+import DeleteGenderForm from "./components/DeleteGenderForm"
 
 const DeleteGenderPage = () => {
     useEffect(() => {
