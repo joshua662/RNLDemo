@@ -1,21 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import AddGenderForm from "./components/AddGenderForm";
 import { GenderList } from "./components/GenderList";
 import ToastMessage from "../../components/ToastMessage/ToastMessage";
+import { useToastMessage } from "../../hooks/useToastMessage";
+import { useRefresh } from "../../hooks/useRefresh";
 
 const GenderMainPage = () => {
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastMessageIsVisible, setToastMessageIsVisible] = useState(false);
+  const {
+    message: toastMessage,
+    isVisible: toastMessageIsVisible,
+    showToastMessage,
+    closeToastMessage,
+  } = useToastMessage("", false);
 
-  const handleShowToastMessage = (message: string) => {
-    setToastMessage(message);
-    setToastMessageIsVisible(true);
-  };
-
-  const handleCloseToastMessage = () => {
-    setToastMessage("");
-    setToastMessageIsVisible(false);
-  };
+  const { refresh, handleRefresh } = useRefresh(false);
 
   useEffect(() => {
     document.title = "Gender Main Page";
@@ -26,18 +24,14 @@ const GenderMainPage = () => {
       <ToastMessage
         message={toastMessage}
         isVisible={toastMessageIsVisible}
-        onClose={handleCloseToastMessage}
+        onClose={closeToastMessage}
       />
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2 md:col-span-1">
-          <AddGenderForm
-            onGenderAdded={(message) => {
-              handleShowToastMessage(message);
-            }}
-          />
+          <AddGenderForm onGenderAdded={showToastMessage} refreshKey={handleRefresh} />
         </div>
         <div className="col-span-2 md:col-span-1">
-          <GenderList />
+          <GenderList refreshKey={refresh} />
         </div>
       </div>
     </>

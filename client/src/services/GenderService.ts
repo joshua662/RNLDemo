@@ -1,4 +1,3 @@
-import type { AxiosResponse } from "axios";
 import AxiosInstance from "./AxiosInstance";
 
 type StoreGenderPayload = {
@@ -6,9 +5,11 @@ type StoreGenderPayload = {
 };
 
 const GenderService = {
-  storeGender: async (
-    data: StoreGenderPayload,
-  ): Promise<AxiosResponse<{ message: string }>> => {
+  loadGenders: async () => {
+    return AxiosInstance.get("/gender/loadGenders");
+  },
+
+  storeGender: async (data: StoreGenderPayload) => {
     return AxiosInstance.post("/gender/storeGender", data);
   },
 };

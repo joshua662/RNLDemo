@@ -7,9 +7,10 @@ import type { GenderFieldErrors } from "../../../interfaces/GenderFieldErrors";
 
 interface AddGenderFormProps {
   onGenderAdded: (message: string) => void;
+  refreshKey: () => void
 }
 
-const AddGenderForm: FC<AddGenderFormProps> = ({ onGenderAdded }) => {
+const AddGenderForm: FC<AddGenderFormProps> = ({ onGenderAdded, refreshKey }) => {
   const [loadingStore, setLoadingStore] = useState(false);
   const [gender, setGender] = useState("");
   const [errors, setErrors] = useState<GenderFieldErrors>({});
@@ -19,14 +20,23 @@ const AddGenderForm: FC<AddGenderFormProps> = ({ onGenderAdded }) => {
       e.preventDefault();
 
       setErrors({});
+
+      if (!gender.trim()) {
+        setErrors({
+          gender: ["The gender field is required."],
+        });
+        return;
+      }
+
       setLoadingStore(true);
 
       const res = await GenderService.storeGender({ gender });
 
-      if (res.status === 200) {
+      if (res.status >= 200 && res.status < 300) {
         setGender("");
         setErrors({});
         onGenderAdded(res.data.message);
+        refreshKey();
       } else {
         console.error(
           "Unexpected error occurred during store gender: ",
@@ -53,15 +63,17 @@ const AddGenderForm: FC<AddGenderFormProps> = ({ onGenderAdded }) => {
 
   return (
     <>
-      <form onSubmit={handleStoreGender}>
+      <form onSubmit={handleStoreGender} noValidate>
         <div className="mb-4">
           <FloatingLabelInput
             label="Gender"
             type="text"
             name="gender"
             value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            required
+            onChange={(e) => {
+              setGender(e.target.value);
+              if (errors.gender?.length) setErrors({});
+            }}
             autoFocus
             errors={errors.gender}
           />
