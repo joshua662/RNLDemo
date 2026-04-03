@@ -10,7 +10,6 @@ interface GenderListProps {
 }
 
 export const GenderList: FC<GenderListProps> = ({ refreshKey }) => {
-
   const [loadingGenders, setLoadingGenders] = useState(false)
   const [genders, setGenders] = useState<GenderColumns[]>([])
 

@@ -11,6 +11,11 @@ Route::controller(GenderController::class)->prefix('/gender')->group(function ()
     Route::put('/updateGender/{gender}', 'updateGender'); //gender/updateGender/{genderId}
     Route::put('/destroyGender/{gender}', 'destroyGender');
 });
+
+Route::controller(UserControl::class)->prefix('/user')->group(function() {
+    Route::post('/storeUser', 'storeUser');
+});
+
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
