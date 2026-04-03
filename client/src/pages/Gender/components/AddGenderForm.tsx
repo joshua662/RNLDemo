@@ -1,4 +1,4 @@
-import { useState, type FC, type FormEvent } from "react";
+import { useState, type FC, type FormEvent, } from "react";
 import axios from "axios";
 import FloatingLabelInput from "../../../components/Input/FloatingLabelInput";
 import SubmitButton from "../../../components/Button/SubmitButton";
@@ -25,6 +25,10 @@ const AddGenderForm: FC<AddGenderFormProps> = ({ onGenderAdded, refreshKey }) =>
         setErrors({
           gender: ["The gender field is required."],
         });
+        setLoadingStore(true);
+        window.setTimeout(() => {
+          setLoadingStore(false);
+        }, 250);
         return;
       }
 
@@ -43,6 +47,8 @@ const AddGenderForm: FC<AddGenderFormProps> = ({ onGenderAdded, refreshKey }) =>
           res.data,
         );
       }
+
+      setLoadingStore(false);
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 422) {
@@ -56,7 +62,7 @@ const AddGenderForm: FC<AddGenderFormProps> = ({ onGenderAdded, refreshKey }) =>
       } else {
         console.error("Unexpected error occured during store gender:", error);
       }
-    } finally {
+
       setLoadingStore(false);
     }
   };
@@ -71,8 +77,9 @@ const AddGenderForm: FC<AddGenderFormProps> = ({ onGenderAdded, refreshKey }) =>
             name="gender"
             value={gender}
             onChange={(e) => {
-              setGender(e.target.value);
-              if (errors.gender?.length) setErrors({});
+              const nextValue = e.target.value;
+              setGender(nextValue);
+              if (nextValue.trim()) setErrors({});
             }}
             autoFocus
             errors={errors.gender}

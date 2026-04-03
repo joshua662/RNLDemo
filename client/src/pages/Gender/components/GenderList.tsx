@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../../com
 import GenderService from "../../../services/GenderService";
 import Spinner from "../../../components/Spinner/Spinner";
 import type { GenderColumns } from "../../../interfaces/GenderColumns";
+import { Link } from "react-router-dom";
 
 interface GenderListProps {
   refreshKey: boolean
@@ -48,9 +49,9 @@ export const GenderList: FC<GenderListProps> = ({ refreshKey }) => {
                 <TableCell isHeader className="px-5 py-3 font-medium text-center">
                   Gender
                 </TableCell>
-                {/* <TableCell isHeader className="px-5 py-3 font-medium text-center">
+                <TableCell isHeader className="px-5 py-3 font-medium text-center">
                   Action
-                </TableCell> */}
+                </TableCell>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-gray-100 text-gray-500 text-sm">
@@ -65,6 +66,12 @@ export const GenderList: FC<GenderListProps> = ({ refreshKey }) => {
                   <TableRow className="hover:bg-gray-100">
                     <TableCell className="px-4 py-3 text-center">{index + 1}</TableCell>
                     <TableCell className="px-4 py-3 text-start">{gender.gender}</TableCell>
+                    <TableCell className="px-4 px-y text-center">
+                      <div className="flex justfy-center items-center gap-x-4">
+                        <Link to={`/gender/edit/${gender.gender_id}`} className="text-green-600 font-medium hover:underline">Edit</Link>
+                        <Link to={`/gender/delete/${gender.gender_id}`} className="text-red-600 font-medium hover:underline">Delete</Link>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
