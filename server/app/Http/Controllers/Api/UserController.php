@@ -3,38 +3,52 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function storeUser(Request $request) {
-        $validated = $request-> validate([
+
+    public function loadUsers() {
+        $users = User::with(['gender'])
+            ->where('tbl_users.is_deleted', false)
+            ->get();
+
+        return response()->json([
+            'users' => $users
+        ], 200);
+    }
+    public function storeUser(Request $request)
+    {
+        $validated = $request->validate([
             'first_name' => ['required', 'max:55'],
             'middle_name' => ['nullable', 'max:55'],
             'last_name' => ['required', 'max:55'],
             'suffix_name' => ['nullable', 'max:55'],
-            'gender' => ['required'],
+            'gender' => ['required', 'exists:tbl_genders,gender_id'],
             'birth_date' => ['required', 'date'],
-            'username' => ['required', 'mim:6', 'max:12', Rule::unique('tbl_users', 'username')],
+            'username' => ['required', 'min:6', 'max:12', Rule::unique('tbl_users', 'username')],
             'password' => ['required', 'min:6', 'max:12', 'confirmed'],
-            'password_confirmation' => ['required', 'min:6', 'max:12']
+            'password_confirmation' => ['required', 'min:6', 'max:12'],
         ]);
 
         $age = date_diff(date_create($validated['birth_date']), date_create('now'))->y;
 
-        User::ctrate([
+        User::create([
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'],
             'last_name' => $validated['last_name'],
             'suffix_name' => $validated['suffix_name'],
-            'gender_id' => $validated['gender_id'],
+            'gender_id' => (int) $validated['gender'],
+            'birth_date' => $validated['birth_date'],
             'age' => $age,
             'username' => $validated['username'],
             'password' => $validated['password'],
         ]);
 
         return response()->json([
-            'message' => 'User Successfully Saved.'
+            'message' => 'User Successfully Saved.',
         ], 200);
     }
 }
