@@ -12,6 +12,16 @@ interface UserPayload {
     password_confirmation: string;
 }
 
+export interface UpdateUserPayload {
+    first_name: string;
+    middle_name?: string;
+    last_name: string;
+    suffix_name?: string;
+    gender: string;
+    birth_date: string;
+    username: string;
+}
+
 const UserService = {
     loadUsers: async () => {
         const response = await AxiosInstance.get("/user/loadUsers");
@@ -20,6 +30,11 @@ const UserService = {
 
     storeUser: async (data: UserPayload) => {
         const response = await AxiosInstance.post("/user/storeUser", data);
+        return response;
+    },
+
+    updateUser: async (userId: string | number, data: UpdateUserPayload) => {
+        const response = await AxiosInstance.put(`/user/updateUser/${userId}`, data);
         return response;
     },
 };
