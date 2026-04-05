@@ -3,7 +3,7 @@ import axios from "axios";
 import FloatingLabelInput from "../../../components/Input/FloatingLabelInput";
 import SubmitButton from "../../../components/Button/SubmitButton";
 import GenderService from "../../../services/GenderService";
-import type { GenderFieldErrors } from "../../../interfaces/GenderFieldErrors";
+import type { GenderFieldErrors } from "../../../interfaces/GenderInterface";
 
 interface AddGenderFormProps {
   onGenderAdded: (message: string) => void;

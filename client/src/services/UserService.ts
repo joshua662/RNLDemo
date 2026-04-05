@@ -37,6 +37,10 @@ const UserService = {
         const response = await AxiosInstance.put(`/user/updateUser/${userId}`, data);
         return response;
     },
-};
+    destroyUser: async (userId: string | number) => {
+        const response = await AxiosInstance.delete(`/user/destroyUser/${userId}`);
+        return response;
+    },
+ };
 
 export default UserService;

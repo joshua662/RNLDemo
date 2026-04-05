@@ -6,7 +6,7 @@ import GenderService from "../../../services/GenderService";
 import { useParams } from "react-router-dom";
 import Spinner from "../../../components/Spinner/Spinner";
 import axios from "axios";
-import type { GenderFieldErrors } from "../../../interfaces/GenderFieldErrors";
+import type { GenderFieldErrors } from "../../../interfaces/GenderInterface";
 
 interface EditGenderFromProps {
     onGenderUpdated: (message: string) => void
