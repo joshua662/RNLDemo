@@ -4,12 +4,12 @@ import SubmitButton from "../../../components/Button/SubmitButton";
 import FloatingLabelInput from "../../../components/Input/FloatingLabelInput";
 import Modal from "../../../components/Modal";
 import FloatingLabelSelect from "../../../components/Select/FloatingLabelSelect";
-import type { UserColumns } from "../../../interfaces/UserColumns";
-import type { GenderColumns } from "../../../interfaces/GenderColumns";
-import type { UserFieldErrors } from "../../../interfaces/UsersFieldError";
+import type { UserFieldErrors } from "../../../interfaces/UserFieldError";
 import GenderService from "../../../services/GenderService";
 import UserService from "../../../services/UserService";
 import axios from "axios";
+import type { UserColumns } from "../../../interfaces/UserInterface";
+import type { GenderColumns } from "../../../interfaces/GenderInterface";
 
 
 interface EditUserFormModalProps {
@@ -31,7 +31,7 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({ user, onUserUpdated, re
     const [lastName, setLastName] = useState("");
     const [suffixName, setSuffixName] = useState("");
     const [gender, setGender] = useState("");
-    const [birthdate, setBirthDate] = useState("");
+    const [birthDate, setBirthDate] = useState("");
     const [username, setUsername] = useState("");
     const [errors, setErrors] = useState<UserFieldErrors>({});
 
@@ -51,7 +51,7 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({ user, onUserUpdated, re
                 last_name: lastName,
                 suffix_name: suffixName,
                 gender: gender,
-                birth_date: birthdate,
+                birth_date: birthDate,
                 username: username,
             };
 
@@ -68,6 +68,8 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({ user, onUserUpdated, re
                 setErrors({});
 
                 onUserUpdated(res.data.message)
+
+                handleLoadGenders();
                 refreshKey()
             } else {
                 console.error('Unexpected status error during updating user: ', res.status)
@@ -109,18 +111,20 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({ user, onUserUpdated, re
 
 
     useEffect(() => {
-        if (user) {
-            setFirstName(user.first_name);
-            setMiddleName(user.middle_name);
-            setLastName(user.last_name);
-            setSuffixName(user.suffix_name ?? "");
-            setGender(user.gender.gender_id.toString());
-            setBirthDate(user.birth_date);
-            setUsername(user.username);
-        } else {
-            console.error('Unexpected error occured during getting user details: ', user)
+        if(isOpen) {
+            if (user) {
+                setFirstName(user.first_name);
+                setMiddleName(user.middle_name);
+                setLastName(user.last_name);
+                setSuffixName(user.suffix_name ?? "");
+                setGender(user.gender.gender_id.toString());
+                setBirthDate(user.birth_date);
+                setUsername(user.username);
+            } else {
+                console.error('Unexpected error occured during getting user details: ', user)
+            }
         }
-    }, [user])
+    }, [isOpen, user])
 
     return (
         <>
@@ -161,7 +165,7 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({ user, onUserUpdated, re
                         </div>
                         <div className="col-span-2 md:col-span-1">
                             <div className="mb-4">
-                                <FloatingLabelInput label="Birth Date" type="date" name="birth_date" value={birthdate} onChange={(e) => setBirthDate(e.target.value)} required errors={errors.birth_date} />
+                                <FloatingLabelInput label="Birth Date" type="date" name="birth_date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required errors={errors.birth_date} />
                             </div>
                             <div className="mb-4">
                                 <FloatingLabelInput label="Username" type="text" name="username" value={username} onChange={(e) => setUsername(e.target.value)} required errors={errors.username} />
