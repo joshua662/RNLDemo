@@ -23,8 +23,8 @@ export interface UpdateUserPayload {
 }
 
 const UserService = {
-    loadUsers: async () => {
-        const response = await AxiosInstance.get("/user/loadUsers");
+    loadUsers: async (page: number) => {
+        const response = await AxiosInstance.get(`/user/loadUsers?page=${page}`);
         return response;
     },
 

@@ -13,7 +13,7 @@ class UserController extends Controller
     public function loadUsers() {
         $users = User::with(['gender'])
             ->where('tbl_users.is_deleted', false)
-            ->get();
+            ->paginate(15);
 
         return response()->json([
             'users' => $users

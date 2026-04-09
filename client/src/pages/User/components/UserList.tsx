@@ -1,4 +1,4 @@
-import { useEffect, useState, type FC } from "react";
+import { useCallback, useEffect, useRef, useState, type FC } from "react";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../../components/Table"
 import Spinner from "../../../components/Spinner/Spinner";
 import UserService from "../../../services/UserService";
@@ -15,23 +15,44 @@ const UserList: FC<UserListProps> = ({ onAddUser, onEditUser, onDeleteUser, refr
     const [loadingUsers, setLoadingUsers] = useState(false)
     const [users, setUsers] = useState<UserColumns[]>([])
 
-    const handleLoadUsers = async () => {
+    const tableRef = useRef<HTMLDivElement>(null);
+    const loadingUsersRef = useRef(false);
+    const sentinelRef = useRef<HTMLTableRowElement | null>(null);
+
+    const currentPageRef = useRef(1);
+    const lastPageRef = useRef(1);
+    const hasMoreRef = useRef(true);
+
+    const handleLoadUsers = useCallback(async (page: number, append = false) => {
         try {
+            if (loadingUsersRef.current) return;
+            if (page < 1) return;
+            if (lastPageRef.current && page > lastPageRef.current) return;
+            loadingUsersRef.current = true;
             setLoadingUsers(true)
 
-            const res = await UserService.loadUsers()
+            const res = await UserService.loadUsers(page);
 
             if (res.status === 200) {
-                setUsers(res.data.users)
+                const usersData = res.data.users.data || res.data.users || []
+                const lastPage = res.data.users.last_page || res.data.last_page || 1
+
+                setUsers(prev => (append ? [...prev, ...usersData] : usersData));
+
+                currentPageRef.current = page;
+                lastPageRef.current = lastPage;
+                hasMoreRef.current = page < lastPage;
             } else {
-                console.error('Unexpected status error occured during loading users: ', res.status);
+                setUsers(prev => (append ? prev : []));
+                hasMoreRef.current = false;
             }
         } catch (error) {
             console.error('Unexpected server error occured during loading users: ', error);
         } finally {
+            loadingUsersRef.current = false;
             setLoadingUsers(false);
         }
-    };
+    }, []);
 
     const handleUserFullNameFormat = (user: UserColumns) => {
         let fullName = ' '
@@ -50,14 +71,44 @@ const UserList: FC<UserListProps> = ({ onAddUser, onEditUser, onDeleteUser, refr
     };
 
     useEffect(() => {
-        handleLoadUsers();
-    }, [refreshKey]);
+        const root = tableRef.current;
+        const target = sentinelRef.current;
+        if (!root || !target) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const entry = entries[0];
+                if (!entry?.isIntersecting) return;
+                if (!hasMoreRef.current) return;
+                if (loadingUsersRef.current) return;
+
+                const nextPage = currentPageRef.current + 1;
+                handleLoadUsers(nextPage, true);
+            },
+            {
+                root,
+                rootMargin: "200px 0px",
+                threshold: 0.01,
+            }
+        );
+
+        observer.observe(target);
+        return () => observer.disconnect();
+    }, [handleLoadUsers]);
+
+    useEffect(() => {
+        setUsers([]);
+        currentPageRef.current = 1;
+        lastPageRef.current = 1;
+        hasMoreRef.current = true;
+        handleLoadUsers(1, false);
+    }, [handleLoadUsers, refreshKey]);
 
 
     return (
         <>
             <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-                <div className="max-w-full max-h-[calc(100vh)] overflow-x-auto">
+                <div ref={tableRef} className="relative max-w-full max-h-[calc(100vh-8.5rem)] overflow-y-auto overflow-x-auto">
                     <Table>
                         <caption className="mb-4">
                             <div className="border-b border-gray-100">
@@ -92,13 +143,8 @@ const UserList: FC<UserListProps> = ({ onAddUser, onEditUser, onDeleteUser, refr
                             </TableRow>
                         </TableHeader>
                         <TableBody className="divide-y divide-gray-100 text-gray-500 text-sm">
-                            {loadingUsers ? (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="px-4 py-3 text-center">
-                                        <Spinner size="md" />
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
+                            {users.length > 0 ? (
+
                                 users.map((user, index) => (
                                     <TableRow className="hover:bg-gray-100" key={index}>
                                         <TableCell className="px-4 py-3 text-center">
@@ -124,7 +170,25 @@ const UserList: FC<UserListProps> = ({ onAddUser, onEditUser, onDeleteUser, refr
                                         </TableCell>
                                     </TableRow>
                                 ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="px-4 py-3 text-center">
+                                        <Spinner size="md" />
+                                    </TableCell>
+                                </TableRow>
                             )}
+                            {loadingUsers && users.length > 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="px-4 py-3 text-center">
+                                        <Spinner size="md" />
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                            <tr ref={sentinelRef}>
+                                <td colSpan={6} className="px-0 py-0">
+                                    <div style={{ height: 1 }} />
+                                </td>
+                            </tr>
                         </TableBody>
                     </Table>
                 </div>
