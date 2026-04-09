@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('last_name', 55);
             $table->string('suffix_name')->nullable();
             $table->unsignedBigInteger('gender_id');
-            $table->date('birth_date') ;
+            $table->date('birth_date');
             $table->integer('age');
             $table->string('username', 55);
             $table->string('password', 255);
@@ -38,8 +38,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::disableForeignKeyConstrainsts();
+        Schema::disableForeignKeyConstraints();  // ✅ Constrainsts → Constraints
         Schema::dropIfExists('tbl_users');
-        Schema::enableForeignKeyConstriants();
+        Schema::enableForeignKeyConstraints();   // ✅ Constriants → Constraints
     }
 };

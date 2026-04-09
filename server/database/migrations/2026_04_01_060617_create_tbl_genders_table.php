@@ -24,8 +24,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schemaa::disableForeignKeyConstraints();
+        Schema::disableForeignKeyConstraints(); // ✅ Schemaa → Schema
         Schema::dropIfExists('tbl_genders');
-        Schemaa::enableForeignKeyConstraints();
+        Schema::enableForeignKeyConstraints();  // ✅ Schemaa → Schema
     }
 };
