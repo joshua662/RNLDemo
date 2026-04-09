@@ -2,9 +2,9 @@ import AxiosInstance from "./AxiosInstance";
 
 interface UserPayload {
     first_name: string;
-    middle_name?: string;       // Optional — not everyone has a middle name
+    middle_name?: string;       
     last_name: string;
-    suffix_name?: string;       // Optional — not everyone has a suffix
+    suffix_name?: string;       
     gender: string;
     birth_date: string;
     username: string;
@@ -23,8 +23,13 @@ export interface UpdateUserPayload {
 }
 
 const UserService = {
-    loadUsers: async (page: number) => {
-        const response = await AxiosInstance.get(`/user/loadUsers?page=${page}`);
+    loadUsers: async (page: number, search = "") => {
+        const keyword = search.trim();
+        const query = keyword
+            ? `/user/loadUsers?page=${page}&search=${encodeURIComponent(keyword)}`
+            : `/user/loadUsers?page=${page}`;
+
+        const response = await AxiosInstance.get(query);
         return response;
     },
 
