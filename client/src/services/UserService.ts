@@ -33,7 +33,7 @@ const UserService = {
         return response;
     },
 
-    storeUser: async (data: UserPayload) => {
+    storeUser: async (data: UserPayload | FormData) => {
         const response = await AxiosInstance.post("/user/storeUser", data);
         return response;
     },

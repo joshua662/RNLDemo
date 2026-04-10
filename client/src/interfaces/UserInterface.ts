@@ -2,6 +2,7 @@ import type { GenderColumns } from "./GenderInterface";
 
 export interface UserColumns {
     user_id: number;
+    profile_picture?: string;
     first_name: string;
     middle_name: string;
     last_name: string;
@@ -17,6 +18,7 @@ export interface UserColumns {
 }
 
 export interface UserFieldErrors {
+    profile_picture?: string[]
     first_name?: string[];
     middle_name?: string[];
     last_name?: string[];

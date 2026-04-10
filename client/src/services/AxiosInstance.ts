@@ -10,7 +10,8 @@ AxiosInstance.interceptors.request.use((config) => {
   }
 
   if (config.data instanceof FormData) {
-    config.headers["Content-Type"] = "multipart/form-data";
+    // Let the browser set multipart/form-data with the correct boundary.
+    config.headers.delete("Content-Type");
   } else {
     config.headers["Content-Type"] = "application/json";
   }
