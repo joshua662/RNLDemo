@@ -2,14 +2,19 @@ import { useEffect, useState, type FC } from "react";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../../components/Table"
 import GenderService from "../../../services/GenderService";
 import Spinner from "../../../components/Spinner/Spinner";
-import type { GenderColumns } from "../../../interfaces/GenderColumns";
-import { Link } from "react-router-dom";
+import type { GenderColumns } from "../../../interfaces/GenderInterface";
 
 interface GenderListProps {
   refreshKey: boolean
+  onEditGender: (gender: GenderColumns) => void
+  onDeleteGender: (gender: GenderColumns) => void
 }
 
-export const GenderList: FC<GenderListProps> = ({ refreshKey }) => {
+export const GenderList: FC<GenderListProps> = ({
+  refreshKey,
+  onEditGender,
+  onDeleteGender,
+}) => {
   const [loadingGenders, setLoadingGenders] = useState(false)
   const [genders, setGenders] = useState<GenderColumns[]>([])
 
@@ -62,13 +67,25 @@ export const GenderList: FC<GenderListProps> = ({ refreshKey }) => {
                 </TableRow>
               ) : (
                 genders.map((gender: GenderColumns, index: number) => (
-                  <TableRow className="hover:bg-gray-100">
+                  <TableRow className="hover:bg-gray-100" key={gender.gender_id}>
                     <TableCell className="px-4 py-3 text-center">{index + 1}</TableCell>
                     <TableCell className="px-4 py-3 text-start">{gender.gender}</TableCell>
                     <TableCell className="px-4 px-y text-center">
                       <div className="flex justfy-center items-center gap-x-4">
-                        <Link to={`/gender/edit/${gender.gender_id}`} className="text-green-600 font-medium hover:underline">Edit</Link>
-                        <Link to={`/gender/delete/${gender.gender_id}`} className="text-red-600 font-medium hover:underline">Delete</Link>
+                        <button
+                          type="button"
+                          className="cursor-pointer font-medium text-green-600 hover:underline"
+                          onClick={() => onEditGender(gender)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="cursor-pointer font-medium text-red-600 hover:underline"
+                          onClick={() => onDeleteGender(gender)}
+                        >
+                          Delete
+                        </button>
                       </div>
                     </TableCell>
                   </TableRow>

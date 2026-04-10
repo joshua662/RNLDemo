@@ -27,46 +27,56 @@ const ToastMessage: FC<ToastMessageProps> = ({
   }
 
   return (
-    <>
+    <div className="fixed inset-0 z-100000 flex items-center justify-center bg-slate-200/70 p-4">
       <div
-        className={`fixed top-5 left-5 z-9999 flex w-[92%] max-w-md items-center gap-3 rounded-xl border p-4 text-sm shadow-md ${
-          isFailed
-            ? "border-red-200 bg-rose-100/90 text-red-900"
-            : "border-green-200 bg-emerald-100/90 text-green-900"
+        className={`w-full max-w-sm rounded-3xl border bg-white p-8 text-center shadow-[0_20px_50px_rgba(37,99,235,0.15)] ${
+          isFailed ? "border-rose-100 text-rose-500" : "border-emerald-100 text-emerald-500"
         }`}
         role="alert"
       >
-        <div
-          className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-            isFailed ? "bg-red-500 text-white" : "bg-green-500 text-white"
-          }`}
-        >
+        <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full border-4 border-current/20 bg-white">
           {isFailed ? (
-            <>
-          <svg
-              className="h-4 w-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" >
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
-          </svg>
-            </>
-          ) : (
-            <>
             <svg
-              className="h-4 w-4"
+              className="h-12 w-12"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
+              fill="none"
               viewBox="0 0 20 20"
             >
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L10.586 13.293l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+              <path
+                d="M10 3.5L17 16H3L10 3.5Z"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinejoin="round"
+              />
+              <path d="M10 7.8V11.3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              <circle cx="10" cy="13.8" r="0.9" fill="currentColor" />
             </svg>
-            <span className="sr-only">Check icon</span>
-            
-            </>
+          ) : (
+            <svg
+              className="h-12 w-12"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.8" />
+              <path
+                d="M6.8 10.1L9.1 12.2L13.4 7.9"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           )}
         </div>
-        <div className="font-medium">{message}</div>
+        <h3 className="text-3xl font-extrabold tracking-wide">
+          {isFailed ? "OH NO..." : "SUCCESS!"}
+        </h3>
+        <p className="mt-3 text-sm text-slate-500">{message}</p>
       </div>
-    </>
+    </div>
   );
 };
 

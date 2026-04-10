@@ -11,12 +11,16 @@ import type { GenderColumns } from "../../../interfaces/GenderInterface";
 import type { UserFieldErrors } from "../../../interfaces/UserInterface";
 import UploadInput from "../../../components/Input/UploadInput";
 
+
+
 interface AddUserFormModalProps {
     onUserAdded: (message: string) => void;
     refreshKey: () => void
     isOpen: boolean;
     onClose: () => void;
 }
+
+
 
 const AddUserFormModal: FC<AddUserFormModalProps> = ({ onUserAdded, refreshKey, isOpen, onClose }) => {
     const [loadingGenders, setLoadingGenders] = useState(false);

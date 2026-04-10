@@ -45,7 +45,7 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
   const [birthDate, setBirthDate] = useState("");
   const [username, setUsername] = useState("");
   const [errors, setErrors] = useState<UserFieldErrors>({});
-
+    
   const handleUpdateUser = async (e: FormEvent) => {
     try {
       e.preventDefault();
