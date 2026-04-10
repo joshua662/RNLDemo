@@ -147,7 +147,7 @@ const AddUserFormModal: FC<AddUserFormModalProps> = ({ onUserAdded, refreshKey, 
                     Add User Form
                 </h1>
                  <div className="mb-4">
-                    <UploadInput label="Profile Picture" name="add_user_profile_picture" value={addUserProfilePicture} onChange={setAddUserProfilePicture} errors={errors.profile_picture}/>
+                    <UploadInput label="Profile Picture" name="add_user_profile_picture" value={addUserProfilePicture} onChange={setAddUserProfilePicture} errors={errors.add_user_profile_picture}/>
                  </div>
                 <div className="grid grid-cols-2 gap-4 border-b border-gray-100 mb-4">
                     <div className="col-span-2 md:col-span-1">

@@ -38,8 +38,8 @@ const UserService = {
         return response;
     },
 
-    updateUser: async (userId: string | number, data: UpdateUserPayload) => {
-        const response = await AxiosInstance.put(`/user/updateUser/${userId}`, data);
+    updateUser: async (userId: string | number, data: UpdateUserPayload | FormData) => {
+        const response = await AxiosInstance.post(`/user/updateUser/${userId}`, data);
         return response;
     },
     destroyUser: async (userId: string | number) => {

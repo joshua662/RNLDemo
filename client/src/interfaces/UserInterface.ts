@@ -18,7 +18,8 @@ export interface UserColumns {
 }
 
 export interface UserFieldErrors {
-    profile_picture?: string[]
+    add_user_profile_picture?: string[];
+    edit_user_profile_picture?: string[];
     first_name?: string[];
     middle_name?: string[];
     last_name?: string[];
