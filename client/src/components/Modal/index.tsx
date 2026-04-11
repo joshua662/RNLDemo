@@ -8,6 +8,8 @@ interface ModalProps {
   children: ReactNode;
   showCloseButton?: boolean;
   isFullScreen?: boolean;
+  backdropClassName?: string;
+  bodyClassName?: string;
 }
 
 const Modal: FC<ModalProps> = ({
@@ -17,6 +19,8 @@ const Modal: FC<ModalProps> = ({
   children,
   showCloseButton,
   isFullScreen,
+  backdropClassName,
+  bodyClassName,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -30,8 +34,8 @@ const Modal: FC<ModalProps> = ({
   );
 
   const contentClasses = isFullScreen
-    ? "relative w-full h-full rounded-lg bg-white flex flex-col"
-    : "relative w-full sm:max-w-md md:max-w-lg lg:max-w-2xl rounded-lg bg-white max-h[90vh] flex flex-col";
+    ? "relative w-full h-full rounded-lg bg-surface-card flex flex-col"
+    : "relative w-full sm:max-w-md md:max-w-lg lg:max-w-2xl rounded-lg bg-surface-card max-h[90vh] flex flex-col";
 
   useEffect(() => {
     if (isOpen) {
@@ -60,11 +64,16 @@ const Modal: FC<ModalProps> = ({
   return (
     <>
       <div
-        className="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999 p-4"
+        className="modal fixed inset-0 z-99999 flex items-center justify-center overflow-y-auto p-4"
         onClick={onClose}
       >
         {!isFullScreen && (
-          <div className="fixed inset-0 w-full h-full bg-gray-400/50 backdrop-blur-lg" />
+          <div
+            className={
+              backdropClassName ??
+              "fixed inset-0 h-full w-full bg-neutral/30 backdrop-blur-md"
+            }
+          />
         )}
         <div
           ref={modalRef}
@@ -72,7 +81,15 @@ const Modal: FC<ModalProps> = ({
           onClick={(e) => e.stopPropagation()}
         >
           {showCloseButton && <ModalCloseButton onClose={onClose} />}
-          <div className="flex-1 overflow-y-auto p-4">{children}</div>
+          <div
+            className={
+              bodyClassName !== undefined
+                ? `flex-1 overflow-y-auto ${bodyClassName}`
+                : "flex-1 overflow-y-auto p-4"
+            }
+          >
+            {children}
+          </div>
         </div>
       </div>
     </>

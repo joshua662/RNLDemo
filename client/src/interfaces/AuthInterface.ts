@@ -12,6 +12,7 @@
     birth_date: string;
     age: string | number;
     username: string;
+    profile_picture?: string | null;
   };
 
     token?: string;
