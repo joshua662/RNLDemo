@@ -151,7 +151,9 @@ const UserList: FC<UserListProps> = ({ onAddUser, onEditUser, onDeleteUser, refr
                         <TableHeader className="border-b border-gray-200 bg-blue-600 sticky top-0 text-white text-xs z-10">
                             <TableRow>
                                 <TableCell isHeader className="px-5 py-3 font-medium text-center">No.</TableCell>
-                                <TableCell isHeader colSpan={2} className="px-5 py-3 font-medium text-start">Full Name</TableCell>
+                                <TableCell isHeader className="px-5 py-3 font-medium text-start">Avatar</TableCell>
+                                <TableCell isHeader className="px-5 py-3 font-medium text-start">Full Name</TableCell>
+                                <TableCell isHeader className="px-5 py-3 font-medium text-start">Username</TableCell>
                                 <TableCell isHeader className="px-5 py-3 font-medium text-start">Gender</TableCell>
                                 <TableCell isHeader className="px-5 py-3 font-medium text-start">Birth Date</TableCell>
                                 <TableCell isHeader className="px-5 py-3 font-medium text-start">Age</TableCell>
@@ -182,6 +184,9 @@ const UserList: FC<UserListProps> = ({ onAddUser, onEditUser, onDeleteUser, refr
                                             {handleUserFullNameFormat(user)}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-start">
+                                            {user.username}
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-start">
                                             {user.gender.gender}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-start">
@@ -200,26 +205,26 @@ const UserList: FC<UserListProps> = ({ onAddUser, onEditUser, onDeleteUser, refr
                                 ))
                             ) : loadingUsers ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="px-4 py-3 text-center">
+                                    <TableCell colSpan={8} className="px-4 py-3 text-center">
                                         <Spinner size="md" />
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="px-4 py-3 text-center font-medium">
+                                    <TableCell colSpan={8} className="px-4 py-3 text-center font-medium">
                                         No Records Found
                                     </TableCell>
                                 </TableRow>
                             )}
                             {loadingUsers && users.length > 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="px-4 py-3 text-center">
+                                    <TableCell colSpan={8} className="px-4 py-3 text-center">
                                         <Spinner size="md" />
                                     </TableCell>
                                 </TableRow>
                             )}
                             <tr ref={sentinelRef}>
-                                <td colSpan={6} className="px-0 py-0">
+                                <td colSpan={8} className="px-0 py-0">
                                     <div style={{ height: 1 }} />
                                 </td>
                             </tr>

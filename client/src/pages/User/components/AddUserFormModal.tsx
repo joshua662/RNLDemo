@@ -48,6 +48,22 @@ const AddUserFormModal: FC<AddUserFormModalProps> = ({ onUserAdded, refreshKey, 
         });
     };
 
+    const validateRequiredFields = (): UserFieldErrors => {
+        const validationErrors: UserFieldErrors = {};
+
+        if (!firstName.trim()) validationErrors.first_name = ["The first name field is required."];
+        if (!middleName.trim()) validationErrors.middle_name = ["The middle name field is required."];
+        if (!lastName.trim()) validationErrors.last_name = ["The last name field is required."];
+        if (!suffixName.trim()) validationErrors.suffix_name = ["The suffix name field is required."];
+        if (!gender) validationErrors.gender = ["The gender field is required."];
+        if (!birthdate) validationErrors.birth_date = ["The birth date field is required."];
+        if (!username.trim()) validationErrors.username = ["The username field is required."];
+        if (!password) validationErrors.password = ["The password field is required."];
+        if (!passwordConfirmation) validationErrors.password_confirmation = ["The password confirmation field is required."];
+
+        return validationErrors;
+    };
+
     useEffect(() => {
         if (!isOpen) return;
         setFirstName("");
@@ -66,6 +82,12 @@ const AddUserFormModal: FC<AddUserFormModalProps> = ({ onUserAdded, refreshKey, 
     const handleStoreUser = async (e: FormEvent) => {
         try {
             e.preventDefault();
+            const validationErrors = validateRequiredFields();
+            if (Object.keys(validationErrors).length > 0) {
+                setErrors(validationErrors);
+                return;
+            }
+
             setLoadingStore(true);
 
              const formData = new FormData();
@@ -146,7 +168,7 @@ const AddUserFormModal: FC<AddUserFormModalProps> = ({ onUserAdded, refreshKey, 
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} showCloseButton>
-            <form onSubmit={handleStoreUser}>
+            <form onSubmit={handleStoreUser} noValidate>
                 <h1 className="text-2xl border-b border-gray-100 p-4 font-semibold mb-4">
                     Add User Form
                 </h1>
@@ -159,13 +181,13 @@ const AddUserFormModal: FC<AddUserFormModalProps> = ({ onUserAdded, refreshKey, 
                             <FloatingLabelInput label="First Name" type="text" name="first_name" value={firstName} onChange={(e) => { setFirstName(e.target.value); clearFieldError("first_name"); }} required autoFocus errors={errors.first_name} />
                         </div>
                         <div className="mb-4">
-                            <FloatingLabelInput label="Middle Name" type="text" name="middle_name" value={middleName} onChange={(e) => { setMiddleName(e.target.value); clearFieldError("middle_name"); }} errors={errors.middle_name} />
+                            <FloatingLabelInput label="Middle Name" type="text" name="middle_name" value={middleName} onChange={(e) => { setMiddleName(e.target.value); clearFieldError("middle_name"); }} required errors={errors.middle_name} />
                         </div>
                         <div className="mb-4">
                             <FloatingLabelInput label="Last Name" type="text" name="last_name" value={lastName} onChange={(e) => { setLastName(e.target.value); clearFieldError("last_name"); }} required errors={errors.last_name} />
                         </div>
                         <div className="mb-4">
-                            <FloatingLabelInput label="Suffix Name" type="text" name="suffix_name" value={suffixName} onChange={(e) => { setSuffixName(e.target.value); clearFieldError("suffix_name"); }} errors={errors.suffix_name} />
+                            <FloatingLabelInput label="Suffix Name" type="text" name="suffix_name" value={suffixName} onChange={(e) => { setSuffixName(e.target.value); clearFieldError("suffix_name"); }} required errors={errors.suffix_name} />
                         </div>
                         <div className="mb-4">
                             <FloatingLabelSelect label="Gender" name="gender" value={gender} onChange={(e) => { setGender(e.target.value); clearFieldError("gender"); }} required errors={errors.gender}>
