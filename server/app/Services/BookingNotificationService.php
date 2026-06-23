@@ -8,6 +8,7 @@ use App\Mail\BookingStatusMail;
 use App\Models\Booking;
 use App\Models\User;
 use App\Models\UserNotification;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -25,6 +26,7 @@ class BookingNotificationService
         $this->storeForUser($booking->user_id, $booking, $title, $message, 'booking_created');
         $this->notifyAdmins('New Booking', "New booking from {$booking->full_name} ({$booking->booking_number})", $booking);
         $this->sendEmail($booking, $title, $message);
+        $this->sendN8nWebhook($booking, 'booking.created');
 
         if ($booking->user_id) {
             event(new NotificationSent($booking->user_id, [
@@ -49,6 +51,13 @@ class BookingNotificationService
         $this->storeForUser($booking->user_id, $booking, $title, $message, 'status_update');
         $this->sendEmail($booking, $title, $message);
         $this->sendSms($booking, $message);
+        $event = match (true) {
+            $booking->status === BookingStatus::Cancelled->value => 'booking.cancelled',
+            $booking->isFinished() => 'booking.finished',
+            default => 'booking.status_changed',
+        };
+
+        $this->sendN8nWebhook($booking, $event, $previousStatus, $message);
 
         if ($booking->user_id) {
             event(new NotificationSent($booking->user_id, [
@@ -65,10 +74,10 @@ class BookingNotificationService
         $this->notifyStatusChange($booking, $booking->status, $message);
     }
 
-    public function notifyCancelled(Booking $booking): void
+    public function notifyCancelled(Booking $booking, ?string $previousStatus = null): void
     {
         $message = 'Your laundry booking has been cancelled. Contact us if you have questions.';
-        $this->notifyStatusChange($booking, $booking->status, $message);
+        $this->notifyStatusChange($booking, $previousStatus ?? $booking->status, $message);
     }
 
     protected function sendSms(Booking $booking, string $message): void
@@ -135,6 +144,52 @@ class BookingNotificationService
             Mail::to($email)->send(new BookingStatusMail($booking, $title, $message));
         } catch (\Throwable $e) {
             Log::warning('Booking email failed: '.$e->getMessage());
+        }
+    }
+
+    protected function sendN8nWebhook(
+        Booking $booking,
+        string $event,
+        ?string $previousStatus = null,
+        ?string $message = null
+    ): void {
+        if (! config('services.n8n.enabled') || ! config('services.n8n.webhook_url')) {
+            return;
+        }
+
+        $headers = [];
+        if (config('services.n8n.secret')) {
+            $headers['X-MDV-Webhook-Secret'] = config('services.n8n.secret');
+        }
+
+        try {
+            $response = Http::withHeaders($headers)
+                ->timeout(5)
+                ->post(config('services.n8n.webhook_url'), [
+                    'event' => $event,
+                    'booking_id' => $booking->id,
+                    'booking_number' => $booking->booking_number,
+                    'full_name' => $booking->full_name,
+                    'phone' => $booking->phone,
+                    'email' => $booking->email,
+                    'address' => $booking->address,
+                    'pickup_date' => $booking->pickup_date?->format('Y-m-d'),
+                    'pickup_time' => Booking::normalizePickupTime($booking->pickup_time),
+                    'weight' => (float) $booking->weight,
+                    'total_price' => (float) $booking->total_price,
+                    'status' => $booking->status,
+                    'previous_status' => $previousStatus,
+                    'message' => $message,
+                    'tracking_code' => $booking->tracking_code,
+                    'customer_type' => $booking->customer_type,
+                    'payment_method' => $booking->payment_method,
+                ]);
+
+            if ($response->failed()) {
+                Log::warning('n8n webhook returned HTTP '.$response->status().': '.$response->body());
+            }
+        } catch (\Throwable $e) {
+            Log::warning('n8n webhook failed: '.$e->getMessage());
         }
     }
 }

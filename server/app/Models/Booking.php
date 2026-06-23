@@ -97,7 +97,9 @@ class Booking extends Model
 
     public function getBookingReferenceAttribute(): string
     {
-        return $this->booking_number;
+        return $this->booking_number
+            ?? $this->tracking_code
+            ?? 'ORDER-'.$this->id;
     }
 
     public static function generateTrackingCode(): string

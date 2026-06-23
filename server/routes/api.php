@@ -55,6 +55,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/bookings', [BookingController::class, 'index']);
         Route::post('/bookings', [BookingController::class, 'adminStore']);
+        Route::post('/bookings/batch-restore', [BookingController::class, 'adminBatchRestore']);
+        Route::post('/bookings/batch-delete-permanent', [BookingController::class, 'adminBatchDeletePermanent']);
         Route::get('/bookings/{id}', [BookingController::class, 'adminShow']);
         Route::patch('/bookings/{id}/status', [BookingController::class, 'updateStatus']);
         Route::patch('/bookings/{id}/done', [BookingController::class, 'markDone']);
@@ -63,6 +65,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/bookings/{id}', [BookingController::class, 'update']);
         Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
         Route::get('/bookings/{id}/export', [BookingController::class, 'exportPdf']);
+        Route::post('/bookings/{id}/admin-trash', [BookingController::class, 'adminTrash']);
+        Route::get('/bookings-trashed', [BookingController::class, 'adminTrashedList']);
+        Route::post('/bookings/{id}/admin-restore', [BookingController::class, 'adminRestore']);
 
         Route::get('/services', [ServiceController::class, 'adminIndex']);
         Route::post('/services', [ServiceController::class, 'store']);

@@ -36,6 +36,12 @@ return [
         'webhook_url' => env('SMS_WEBHOOK_URL'),
     ],
 
+    'n8n' => [
+        'enabled' => env('N8N_ENABLED', false),
+        'webhook_url' => env('N8N_WEBHOOK_URL'),
+        'secret' => env('N8N_WEBHOOK_SECRET'),
+    ],
+
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
         'chat_id' => env('TELEGRAM_CHAT_ID'),

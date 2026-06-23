@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Search, FileDown, Eye, CheckCircle, XCircle, Plus, Pencil, Trash2 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import AdminService from "../../services/AdminService";
@@ -21,6 +21,7 @@ const AdminOrders = () => {
   const [doneFilter, setDoneFilter] = useState("");
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
+  const [errorMessage, setErrorMessage] = useState("");
   const [selected, setSelected] = useState<Booking | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [formBooking, setFormBooking] = useState<Booking | null>(null);
@@ -29,24 +30,39 @@ const AdminOrders = () => {
   const [statusUpdatingId, setStatusUpdatingId] = useState<number | null>(null);
   const { showToast } = useToast();
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
-    AdminService.bookings({
-      search,
-      status: statusFilter,
-      page,
-      is_done: doneFilter === "" ? undefined : doneFilter === "true",
-    })
+    setErrorMessage("");
+
+    const params: {
+      search?: string;
+      status?: string;
+      page: number;
+      is_done?: boolean;
+    } = { page };
+
+    const trimmedSearch = search.trim();
+    if (trimmedSearch) params.search = trimmedSearch;
+    if (statusFilter) params.status = statusFilter;
+    if (doneFilter !== "") params.is_done = doneFilter === "true";
+
+    AdminService.bookings(params)
       .then((res) => {
-        setBookings(res.data.data);
-        setLastPage(res.data.last_page);
+        const rows = Array.isArray(res.data.data) ? res.data.data : [];
+        setBookings(rows);
+        setLastPage(res.data.last_page || 1);
+      })
+      .catch((err) => {
+        const message = getApiErrorMessage(err, "Failed to load bookings");
+        setErrorMessage(message);
+        showToast(message, "error");
       })
       .finally(() => setLoading(false));
-  };
+  }, [doneFilter, page, search, showToast, statusFilter]);
 
   useEffect(() => {
     load();
-  }, [search, statusFilter, doneFilter, page]);
+  }, [load]);
 
   const exportPdf = (b: Booking) => {
     const doc = new jsPDF();
@@ -201,6 +217,13 @@ const AdminOrders = () => {
       <div className="grid gap-4 lg:hidden">
         {loading ? (
           <Skeleton className="h-40" />
+        ) : errorMessage ? (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-center text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200">
+            <p className="font-medium">{errorMessage}</p>
+            <button onClick={load} className="mt-3 px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-medium">
+              Retry
+            </button>
+          </div>
         ) : (
           bookings.map((b) => (
             <BookingCard
@@ -215,13 +238,20 @@ const AdminOrders = () => {
             />
           ))
         )}
-        {!loading && !bookings.length && <p className="text-center text-muted py-8">No bookings found</p>}
+        {!loading && !errorMessage && !bookings.length && <p className="text-center text-muted py-8">No bookings found</p>}
       </div>
 
       <div className="hidden lg:block bg-white dark:bg-slate-800 rounded-2xl card-shadow border border-border dark:border-slate-700 overflow-x-auto">
         {loading ? (
           <div className="p-6">
             <Skeleton className="h-48" />
+          </div>
+        ) : errorMessage ? (
+          <div className="p-8 text-center">
+            <p className="text-red-600 dark:text-red-300 font-medium">{errorMessage}</p>
+            <button onClick={load} className="mt-3 px-4 py-2 rounded-lg bg-navy text-white text-sm font-medium">
+              Retry
+            </button>
           </div>
         ) : (
           <table className="w-full text-sm">
@@ -311,7 +341,7 @@ const AdminOrders = () => {
             </tbody>
           </table>
         )}
-        {!loading && !bookings.length && <p className="p-8 text-center text-muted">No bookings found</p>}
+        {!loading && !errorMessage && !bookings.length && <p className="p-8 text-center text-muted">No bookings found</p>}
       </div>
 
       {lastPage > 1 && (

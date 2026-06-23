@@ -192,11 +192,12 @@ class BookingService
             throw new \InvalidArgumentException('Cannot cancel a finished booking.');
         }
 
+        $previous = $booking->status;
         $updated = $this->repository->update($booking, [
             'status' => BookingStatus::Cancelled->value,
             'is_done' => false,
         ]);
-        $this->notificationService->notifyCancelled($updated);
+        $this->notificationService->notifyCancelled($updated, $previous);
 
         return $updated;
     }
@@ -213,7 +214,11 @@ class BookingService
     public function deleteBooking(Booking $booking): void
     {
         $booking->payment()?->delete();
-        $booking->delete();
+        if ($booking->trashed()) {
+            $booking->forceDelete();
+        } else {
+            $booking->delete();
+        }
     }
 
     public function trashCancelledBooking(Booking $booking, int $userId): Booking

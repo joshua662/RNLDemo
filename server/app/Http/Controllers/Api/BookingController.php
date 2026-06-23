@@ -279,7 +279,7 @@ class BookingController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::withTrashed()->findOrFail($id);
         $this->bookingService->deleteBooking($booking);
 
         return response()->json(['message' => 'Booking deleted.']);
@@ -295,6 +295,72 @@ class BookingController extends Controller
         return response()->json([
             'booking' => new BookingResource($booking),
             'export_url' => url("/api/admin/bookings/{$id}/pdf"),
+        ]);
+    }
+
+    public function adminTrash(int $id): JsonResponse
+    {
+        $booking = Booking::findOrFail($id);
+        $booking->delete(); // soft-delete
+
+        return response()->json(['message' => 'Booking moved to trash.']);
+    }
+
+    public function adminTrashedList(): JsonResponse
+    {
+        $bookings = Booking::onlyTrashed()
+            ->latest('deleted_at')
+            ->get();
+
+        return response()->json(['bookings' => BookingResource::collection($bookings)]);
+    }
+
+    public function adminRestore(int $id): JsonResponse
+    {
+        $booking = Booking::onlyTrashed()->findOrFail($id);
+        $booking->restore();
+
+        return response()->json([
+            'message' => 'Booking restored successfully.',
+            'booking' => new BookingResource($booking->fresh(['payment', 'user'])),
+        ]);
+    }
+
+    public function adminBatchRestore(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $ids = $request->ids;
+        $bookings = Booking::onlyTrashed()->whereIn('id', $ids)->get();
+
+        foreach ($bookings as $booking) {
+            $booking->restore();
+        }
+
+        return response()->json([
+            'message' => 'Selected bookings restored successfully.',
+        ]);
+    }
+
+    public function adminBatchDeletePermanent(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $ids = $request->ids;
+        $bookings = Booking::onlyTrashed()->whereIn('id', $ids)->get();
+
+        foreach ($bookings as $booking) {
+            $this->bookingService->deleteBooking($booking);
+        }
+
+        return response()->json([
+            'message' => 'Selected bookings permanently deleted.',
         ]);
     }
 
