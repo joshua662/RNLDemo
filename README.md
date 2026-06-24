@@ -14,7 +14,24 @@ Full-stack laundry service management website with customer booking and admin da
 
 ```
 ├── client/          # React + Vite frontend
-└── server/          # Laravel 12 API
+├── server/          # Laravel 12 API
+└── docs/            # Project documentation
+```
+
+## Automation (n8n + Telegram)
+
+This project includes a **working n8n automation integration** for the Final Project / Final Examination requirement (IT 9 + CC6).
+
+When a customer creates a booking or an admin updates order status, Laravel sends a webhook to n8n, which automatically sends a **Telegram** notification to the shop admin.
+
+**Full step-by-step guide:** [docs/n8n-telegram-automation.md](docs/n8n-telegram-automation.md)
+
+Quick enable in `server/.env`:
+
+```env
+N8N_ENABLED=true
+N8N_WEBHOOK_URL=http://localhost:5678/webhook/mdv-laundry
+N8N_WEBHOOK_SECRET=mdv-secret-2026
 ```
 
 ## Prerequisites
